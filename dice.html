@@ -1,0 +1,197 @@
+<html>
+<meta name="viewport" content="width=400">
+<title>MVMn's dice roller</title>
+<script>
+	function getUrlParameters(parameter, staticURL, decode){
+		/*
+		Function: getUrlParameters
+		Description: Get the value of URL parameters either from 
+					 current URL or static URL
+		Author: Tirumal
+		URL: www.code-tricks.com
+		*/
+		var currLocation = (staticURL.length)? staticURL : window.location.search;
+		var returnBool = true;
+		if(currLocation.split("?").length>1) {
+			var parArr = currLocation.split("?")[1].split("&");
+			for(var i = 0; i < parArr.length; i++){
+				parr = parArr[i].split("=");
+				if(parr[0] == parameter){
+						return (decode) ? decodeURIComponent(parr[1]) : parr[1];
+				}else{
+					returnBool = false;            
+				}
+			}
+		}   
+		if(!returnBool) return false;  
+	}
+	
+	function getRandomInt(min, max) {
+		const minCeiled = Math.ceil(min);
+		const maxFloored = Math.floor(max);
+		return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+	}
+
+	var currentResult = 0;
+	var currentNumbers = [];
+	
+	function next() {
+		resetCurrent();
+		document.getElementById("resultsContainer").innerHTML = '<hr/>' + document.getElementById("resultsContainer").innerHTML
+	}
+	
+	function clearResults() {
+		resetCurrent();
+		document.getElementById("resultsContainer").innerHTML = '';
+	}
+	
+	function resetCurrent() {
+		currentResult = 0;
+		currentNumbers = [];
+	}
+	
+	function roll(number) {
+		var result = getRandomInt(1, number+1);
+		handleRollResult('D'+number, result);
+	}
+		
+	function handleRollResult(dieName, result) {
+		currentNumbers.push(result);
+		currentResult+=result;
+		var resultsContainer = document.getElementById("resultsContainer");
+		
+		const template = document.createElement('template');
+		template.innerHTML = '<div><span class="diceType">'+dieName+'</span>: <span class="rollResult">'+(currentNumbers.length>1 && !dieName.startsWith('-' )?'+':'')+result+'</span> <span class="eqSign">=</span> <span class="totalSum">'+currentResult+'</span></div>';
+		
+		resultsContainer.prepend(template.content.firstChild);
+	}
+	
+	function plusOne() {
+		handleRollResult('+1', 1);
+	}
+	
+	function minusOne() {
+		handleRollResult('-1', -1);
+	}
+	
+	function addDie() {
+		var diceVal = '';		
+		while(!isPositiveIntAboveZero(diceVal)) {
+			diceVal = prompt('Enter die value (positive integer)');
+			if(diceVal == null) {
+				return;
+			}
+		}
+		document.getElementById('diceContainer').innerHTML += '<div onclick="roll('+diceVal+')">D'+diceVal+'</div>';
+	}
+	
+	function isPositiveIntAboveZero(val) {
+		let intVal = parseInt(val);
+		return !isNaN(intVal) && (intVal == val) && intVal > 0;
+	}
+</script>
+<style>
+body {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: 300;
+	font-size: 12pt;
+	background: black;
+	color: white;
+}
+
+#diceContainer > div {
+	float: left;
+	padding: 20px;
+	border: solid 1px gray;
+	margin: 4px;
+	background: white;
+	color: black;
+	font-weight: bold;
+}
+
+#diceContainer > div:hover {
+	color: white;
+	background-color: black;
+	border-color: white;
+}
+
+#buttonRow {
+	clear: both;
+}
+
+#mainContainer > hr {
+	clear: both;
+}
+
+#buttonRow {
+	text-align: center;
+}
+
+#resultsContainer {
+	font-size: 200%;
+}
+
+.diceType {
+	color: red;
+}
+
+.eqSign {
+	color: grey;
+}
+
+.totalSum {
+	color: green;
+}
+
+#buttonRow > button {
+	margin: 0px 5px 0px 5px;
+}
+
+.diceType {
+	display: inline-block;
+	min-width: 76px;
+}
+
+.diceType {
+	display: inline-block;
+	min-width: 80px;
+}
+
+.rollResult {
+	display: inline-block;
+	min-width: 75px;
+}
+
+.totalSum {
+	display: inline-block;
+	min-width: 40px;
+}
+</style>
+<body>
+	<div id="mainContainer">
+		<div id="diceContainer">
+			<div id="d2"   onclick="roll(2)"  >D2</div>
+			<div id="d4"   onclick="roll(4)"  >D4</div>
+			<div id="d6"   onclick="roll(6)"  >D6</div>
+			<div id="d8"   onclick="roll(8)"  >D8</div>
+			<div id="d10"  onclick="roll(10)" >D10</div>
+			<div id="d12"  onclick="roll(12)" >D12</div>
+			<div id="d20"  onclick="roll(20)" >D20</div>
+			<div id="d100" onclick="roll(100)">D100</div>
+		</div>
+		<hr/>
+		<div id="buttonRow">
+			<button onclick="plusOne()">+1</button>
+			<button onclick="minusOne()">-1</button>
+			|
+			<button onclick="next()">Next</button>
+			<button onclick="clearResults()">Clear</button>
+			|
+			<button onclick="addDie()">+die</button>
+		</div>
+		<hr/>
+		<div id="resultsContainer">
+		</div>
+	</div>
+</body>
+</html>
