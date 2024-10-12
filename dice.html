@@ -1,6 +1,7 @@
 <html>
 <meta name="viewport" content="width=400">
 <title>MVMn's dice roller</title>
+<!-- source: https://github.com/mvmn/dice -->
 <script>
 	function getUrlParameters(parameter, staticURL, decode){
 		/*
@@ -10,7 +11,7 @@
 		Author: Tirumal
 		URL: www.code-tricks.com
 		*/
-		var currLocation = (staticURL.length)? staticURL : window.location.search;
+		var currLocation = (staticURL && staticURL.length)? staticURL : window.location.search;
 		var returnBool = true;
 		if(currLocation.split("?").length>1) {
 			var parArr = currLocation.split("?")[1].split("&");
@@ -66,29 +67,65 @@
 		resultsContainer.prepend(template.content.firstChild);
 	}
 	
-	function plusOne() {
-		handleRollResult('+1', 1);
-	}
-	
-	function minusOne() {
-		handleRollResult('-1', -1);
+	function adjust(adjustmentValue) {
+		handleRollResult('' + (adjustmentValue >= 0 ? '+' : '' ) + adjustmentValue, adjustmentValue);
 	}
 	
 	function addDie() {
-		var diceVal = '';		
-		while(!isPositiveIntAboveZero(diceVal)) {
-			diceVal = prompt('Enter die value (positive integer)');
-			if(diceVal == null) {
+		var dieVal = '';		
+		while(!isIntAboveZero(dieVal)) {
+			dieVal = prompt('Enter die value (positive integer)');
+			if(dieVal == null) {
 				return;
 			}
 		}
-		document.getElementById('diceContainer').innerHTML += '<div onclick="roll('+diceVal+')">D'+diceVal+'</div>';
+		doAddDie(dieVal);
 	}
 	
-	function isPositiveIntAboveZero(val) {
+	function doAddDie(dieVal) {
+		document.getElementById('diceContainer').innerHTML += '<div onclick="roll('+dieVal+')">D'+dieVal+'</div>';
+		
+		var param = getUrlParameters("dice");
+		if(!param) {
+			param = '';
+		}
+		var diceVal = param.split(",").filter(v => isInt(v)).map(v => parseInt(v));
+		if (diceVal.indexOf(parseInt(dieVal))<0) {
+			diceVal.push(parseInt(dieVal));
+			window.history.replaceState(null, null, "?dice=" + diceVal.join(','));
+		}
+	}
+	
+	function isIntAboveZero(val) {
 		let intVal = parseInt(val);
 		return !isNaN(intVal) && (intVal == val) && intVal > 0;
 	}
+	
+	function isInt(val) {
+		let intVal = parseInt(val);
+		return !isNaN(intVal) && (intVal == val);
+	}
+	
+	function adjustArbitrary() {
+		var adjVal = '';		
+		while(!isInt(adjVal)) {
+			adjVal = prompt('Enter adjustment value (integer)');
+			if (adjVal == null) {
+				return;
+			}
+		}
+		adjust(parseInt(adjVal));
+	}
+	
+	function initfunc() {
+		var param = getUrlParameters("dice");
+		if(param) {
+			var diceVal = param.split(",").filter(v => isInt(v)).map(v => parseInt(v));
+			diceVal.forEach(dieVal => doAddDie(dieVal));
+		}
+	}
+	
+	addEventListener("load", initfunc);
 </script>
 <style>
 body {
@@ -117,6 +154,10 @@ body {
 
 #buttonRow {
 	clear: both;
+}
+
+#buttonRow button {
+	font-size: 8pt;
 }
 
 #mainContainer > hr {
@@ -181,8 +222,9 @@ body {
 		</div>
 		<hr/>
 		<div id="buttonRow">
-			<button onclick="plusOne()">+1</button>
-			<button onclick="minusOne()">-1</button>
+			<button onclick="adjust(1)">+1</button>
+			<button onclick="adjust(-1)">-1</button>
+			<button onclick="adjustArbitrary()">adj</button>
 			|
 			<button onclick="next()">Next</button>
 			<button onclick="clearResults()">Clear</button>
