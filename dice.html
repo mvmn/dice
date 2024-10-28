@@ -1,5 +1,5 @@
 <html>
-<meta name="viewport" content="width=400">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>MVMn's dice roller</title>
 <!-- source: https://github.com/mvmn/dice -->
 <script>
@@ -62,7 +62,7 @@
 		var resultsContainer = document.getElementById("resultsContainer");
 		
 		const template = document.createElement('template');
-		template.innerHTML = '<div><span class="diceType">'+dieName+'</span>: <span class="rollResult">'+(currentNumbers.length>1 && !dieName.startsWith('-' )?'+':'')+result+'</span> <span class="eqSign">=</span> <span class="totalSum">'+currentResult+'</span></div>';
+		template.innerHTML = '<div><span class="diceType die_' + window.currentColorClass + '">'+dieName+'</span>: <span class="rollResult">'+(currentNumbers.length>1 && !dieName.startsWith('-' )?'+':'')+result+'</span> <span class="eqSign">=</span> <span class="totalSum">'+currentResult+'</span></div>';
 		
 		resultsContainer.prepend(template.content.firstChild);
 	}
@@ -83,7 +83,7 @@
 	}
 	
 	function doAddDie(dieVal) {
-		document.getElementById('diceContainer').innerHTML += '<div onclick="roll('+dieVal+')">D'+dieVal+'</div>';
+		document.getElementById('diceContainer').innerHTML += '<div onclick="roll('+dieVal+')" class="die_to_roll die_' + window.currentColorClass + '">D'+dieVal+'</div>';
 		
 		var param = getUrlParameters("dice");
 		if(!param) {
@@ -125,6 +125,34 @@
 		}
 	}
 	
+	window.currentColorClass = 'white';
+	
+	function setColor(colorClass) {
+		window.currentColorClass = colorClass;
+		replaceClassesByRegex('die_to_roll', /^die_[a-zA-Z0-9]+$/, 'die_'+colorClass);
+	}
+	
+	function replaceClassesByRegex(selectorClass, regex, newClass) {
+	  // Select all elements with the specified selector class
+	  const elements = document.getElementsByClassName(selectorClass);
+  
+	  // Loop over each selected element
+	  Array.from(elements).forEach(element => {
+	    // Get current class list of the element
+	    const classList = Array.from(element.classList);
+    
+	    // Remove any class that matches the provided regex
+	    classList.forEach(cls => {
+	      if (regex.test(cls)) {
+	        element.classList.remove(cls);
+	      }
+	    });
+    
+	    // Add the new class
+	    element.classList.add(newClass);
+	  });
+	}
+	
 	addEventListener("load", initfunc);
 </script>
 <style>
@@ -141,9 +169,47 @@ body {
 	padding: 20px;
 	border: solid 1px gray;
 	margin: 4px;
+	font-weight: bold;
+}
+
+.die_white {
 	background: white;
 	color: black;
-	font-weight: bold;
+}
+
+.die_black {
+	background: black;
+	color: white;
+}
+
+.die_red {
+	background: red;
+	color: white;
+}
+
+.die_green {
+	background: green;
+	color: white;
+}
+
+.die_blue {
+	background: blue;
+	color: white;
+}
+
+.die_cyan {
+	background: cyan;
+	color: black;
+}
+
+.die_magenta {
+	background: magenta;
+	color: white;
+}
+
+.die_yellow {
+	background: yellow;
+	color: black;
 }
 
 #diceContainer > div:hover {
@@ -164,7 +230,7 @@ body {
 	clear: both;
 }
 
-#buttonRow {
+#buttonRow, #colorsRow {
 	text-align: center;
 }
 
@@ -173,7 +239,13 @@ body {
 }
 
 .diceType {
-	color: red;
+	display: inline-block;
+	padding: 2px;
+	border: solid 1px gray;
+	margin: 2px;
+	font-weight: bold;
+	display: inline-block;
+	min-width: 80px;
 }
 
 .eqSign {
@@ -188,16 +260,6 @@ body {
 	margin: 0px 5px 0px 5px;
 }
 
-.diceType {
-	display: inline-block;
-	min-width: 76px;
-}
-
-.diceType {
-	display: inline-block;
-	min-width: 80px;
-}
-
 .rollResult {
 	display: inline-block;
 	min-width: 75px;
@@ -207,18 +269,26 @@ body {
 	display: inline-block;
 	min-width: 40px;
 }
+
+.colorSelect {
+	width: 30px;
+	height: 30px;
+	border: solid 1px grey;
+	border-radius: 15px;
+	display: inline-block;
+}
 </style>
 <body>
 	<div id="mainContainer">
 		<div id="diceContainer">
-			<div id="d2"   onclick="roll(2)"  >D2</div>
-			<div id="d4"   onclick="roll(4)"  >D4</div>
-			<div id="d6"   onclick="roll(6)"  >D6</div>
-			<div id="d8"   onclick="roll(8)"  >D8</div>
-			<div id="d10"  onclick="roll(10)" >D10</div>
-			<div id="d12"  onclick="roll(12)" >D12</div>
-			<div id="d20"  onclick="roll(20)" >D20</div>
-			<div id="d100" onclick="roll(100)">D100</div>
+			<div id="d2"   onclick="roll(2)"   class="die_to_roll die_white">D2</div>
+			<div id="d4"   onclick="roll(4)"   class="die_to_roll die_white">D4</div>
+			<div id="d6"   onclick="roll(6)"   class="die_to_roll die_white">D6</div>
+			<div id="d8"   onclick="roll(8)"   class="die_to_roll die_white">D8</div>
+			<div id="d10"  onclick="roll(10)"  class="die_to_roll die_white">D10</div>
+			<div id="d12"  onclick="roll(12)"  class="die_to_roll die_white">D12</div>
+			<div id="d20"  onclick="roll(20)"  class="die_to_roll die_white">D20</div>
+			<div id="d100" onclick="roll(100)" class="die_to_roll die_white">D100</div>
 		</div>
 		<hr/>
 		<div id="buttonRow">
@@ -230,6 +300,17 @@ body {
 			<button onclick="clearResults()">Clear</button>
 			|
 			<button onclick="addDie()">+die</button>
+		</div>
+		<hr/>
+		<div id="colorsRow">
+			<div class="colorSelect" onclick="setColor('white')" style="background-color: white"></div>
+			<div class="colorSelect" onclick="setColor('red')" style="background-color: red"></div>
+			<div class="colorSelect" onclick="setColor('green')" style="background-color: green"></div>
+			<div class="colorSelect" onclick="setColor('blue')" style="background-color: blue"></div>
+			<div class="colorSelect" onclick="setColor('cyan')" style="background-color: cyan"></div>
+			<div class="colorSelect" onclick="setColor('magenta')" style="background-color: magenta"></div>
+			<div class="colorSelect" onclick="setColor('yellow')" style="background-color: yellow"></div>
+			<div class="colorSelect" onclick="setColor('black')" style="background-color: black"></div>
 		</div>
 		<hr/>
 		<div id="resultsContainer">
